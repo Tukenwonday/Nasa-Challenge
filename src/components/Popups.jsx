@@ -75,7 +75,7 @@ export function HoverCard({ relic, visible, cardRef }) {
   )
 }
 
-/** Slim docked mission capsule floating right above the timeline dots (Idea 2). */
+/** Compact 2-line docked mission capsule floating right above the timeline dots. */
 export function Teaser({ relic, visible, onOpen }) {
   if (!relic) return null
   const accent = ACCENTS[relic.body]
@@ -88,51 +88,49 @@ export function Teaser({ relic, visible, onOpen }) {
           initial={{ opacity: 0, y: 14, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.96 }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="pointer-events-none absolute z-20 bottom-[68px] md:bottom-[78px] left-0 right-0 flex justify-center px-4"
+          transition={{ duration: 0.35, ease: EASE }}
+          className="pointer-events-none absolute z-20 bottom-[64px] md:bottom-[74px] left-0 right-0 flex justify-center px-4"
         >
           <button
             onClick={onOpen}
             aria-label={`Explore mission details for ${relic.name}`}
-            className="pointer-events-auto group glass rounded-full pl-2 pr-3.5 py-1.5 flex items-center gap-2.5 max-w-full sm:max-w-xl shadow-2xl transition hover:bg-white/[0.09] hover:border-white/20 select-none"
+            className="pointer-events-auto group glass relative overflow-hidden rounded-2xl px-4 py-2 sm:px-5 sm:py-2.5 flex flex-col gap-0.5 w-full max-w-[420px] shadow-2xl transition hover:bg-white/[0.08] hover:border-white/20 select-none text-left"
           >
-            {/* Year & Planet Tag */}
             <span
-              className="hud-label rounded-full px-2.5 py-0.5 text-[9.5px] tracking-wider font-semibold flex items-center gap-1.5 shrink-0"
-              style={{
-                background: `${accent}18`,
-                color: accent,
-                border: `1px solid ${accent}40`,
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
-              {relic.year} · {relic.body === 'mars' ? 'MARS' : 'MOON'}
-            </span>
+              className="absolute inset-x-0 top-0 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+            />
 
-            {/* Relic Name */}
-            <span className="text-[13px] font-medium text-white tracking-tight truncate">
-              {relic.name}
-            </span>
+            {/* Line 1: Year & Destination on left, Explore action on right */}
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[11px] font-semibold tracking-wider uppercase font-sans"
+                style={{ color: accent }}
+              >
+                {relic.year} · {relic.body === 'mars' ? 'MARS' : 'THE MOON'}
+              </span>
 
-            {/* Separator dot */}
-            <span className="hidden sm:inline text-silver/30 text-xs">·</span>
+              <span
+                className="text-[11px] font-medium tracking-wide flex items-center gap-1 font-sans transition group-hover:text-white"
+                style={{ color: accent }}
+              >
+                Explore
+                <ArrowUpRight
+                  size={12}
+                  className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                />
+              </span>
+            </div>
 
-            {/* Fun title / Nickname */}
-            <span className="hidden sm:inline text-[12px] italic text-silver/65 truncate max-w-[220px]">
-              “{relic.title}”
-            </span>
-
-            {/* Explore button cue */}
-            <span
-              className="hud-label text-[10px] tracking-wider shrink-0 flex items-center gap-1 ml-auto font-medium transition group-hover:text-white"
-              style={{ color: accent }}
-            >
-              Explore
-              <ArrowUpRight
-                size={12}
-                className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-              />
-            </span>
+            {/* Line 2: Machine Name and Nickname */}
+            <div className="flex items-baseline gap-2 truncate">
+              <span className="text-[14px] sm:text-[15px] font-medium text-white tracking-tight shrink-0 font-sans">
+                {relic.name}
+              </span>
+              <span className="text-[12px] italic text-silver/65 truncate font-sans">
+                “{relic.title}”
+              </span>
+            </div>
           </button>
         </motion.div>
       )}
