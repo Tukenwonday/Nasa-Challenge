@@ -15,20 +15,20 @@ const TABS = [
 
 function LogTab({ relic, accent }) {
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3">
       {relic.log.map((p, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 * i }}
-          className="relative pl-3.5 border-l-2 py-0.5 text-[13.5px] leading-relaxed text-silver/90 italic font-sans"
+          className="relative pl-3 border-l-2 py-0.5 text-[13px] leading-relaxed text-silver/90 italic font-sans"
           style={{ borderColor: `${accent}70` }}
         >
           “{p}”
         </motion.div>
       ))}
-      <p className="text-[11.5px] font-mono text-silver/50 pt-1 tracking-wider">
+      <p className="text-[11px] font-mono text-silver/50 pt-1 tracking-wider">
         {relic.sign}
       </p>
     </div>
@@ -37,24 +37,24 @@ function LogTab({ relic, accent }) {
 
 function ScienceTab({ relic, accent }) {
   return (
-    <div className="grid gap-2.5">
+    <div className="grid gap-2">
       {relic.stats.map((s, i) => (
         <motion.div
           key={s.label}
-          initial={{ opacity: 0, x: 10 }}
+          initial={{ opacity: 0, x: 8 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.08 * i }}
-          className="flex items-center gap-3.5 rounded-2xl border border-white/[0.08] bg-white/[0.025] hover:bg-white/[0.05] px-4 py-3 transition-colors shadow-sm"
+          transition={{ delay: 0.06 * i }}
+          className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 py-2.5 transition-colors shadow-sm"
         >
           <span
-            className="grid place-items-center w-10 h-10 rounded-xl shrink-0"
+            className="grid place-items-center w-8 h-8 rounded-lg shrink-0"
             style={{ background: `${accent}16`, color: accent, border: `1px solid ${accent}33` }}
           >
-            <s.icon size={18} strokeWidth={1.7} />
+            <s.icon size={16} strokeWidth={1.7} />
           </span>
           <span className="min-w-0">
-            <span className="block text-white text-[17px] font-light tracking-tight">{s.value}</span>
-            <span className="block text-[11.5px] text-silver/60 leading-snug">{s.label}</span>
+            <span className="block text-white text-[15px] font-light tracking-tight">{s.value}</span>
+            <span className="block text-[11px] text-silver/60 leading-snug">{s.label}</span>
           </span>
         </motion.div>
       ))}
@@ -64,33 +64,67 @@ function ScienceTab({ relic, accent }) {
 
 function ConditionTab({ relic, accent, onBurst }) {
   const c = relic.condition
-  const dot = c.tone === 'ok' ? '#8fd6a3' : accent
+  const isOk = c.tone === 'ok'
+  const statusColor = isOk ? '#8fd6a3' : accent
+
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-2.5">
+      {/* Visual Diagnostic Banner */}
       <div
-        className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 backdrop-blur-md"
-        style={{ borderColor: `${dot}55`, background: `${dot}12`, boxShadow: `0 0 16px ${dot}18` }}
+        className="rounded-xl border px-3 py-2 flex items-center justify-between text-[11px]"
+        style={{
+          borderColor: `${statusColor}40`,
+          background: `${statusColor}10`,
+        }}
       >
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ background: dot }} />
-          <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: dot }} />
-        </span>
-        <span className="text-[11px] font-semibold tracking-wider uppercase font-sans text-white">
-          {c.status.startsWith('Condition') ? c.status : `Condition: ${c.status}`}
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span
+              className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
+              style={{ background: statusColor }}
+            />
+            <span
+              className="relative inline-flex h-2 w-2 rounded-full"
+              style={{ background: statusColor }}
+            />
+          </span>
+          <span className="font-mono text-[9.5px] tracking-widest text-silver/60 uppercase">
+            STATUS
+          </span>
+        </div>
+        <span className="font-mono text-[11px] font-semibold text-white tracking-wider">
+          {c.status.replace(/^Condition:\s*/i, '')}
         </span>
       </div>
-      <dl className="divide-y divide-white/[0.06] text-[12px] rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-1">
+
+      {/* 2-Column Telemetry Diagnostics Grid */}
+      <div className="grid grid-cols-2 gap-2">
         {c.rows.map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-4 py-2.5">
-            <dt className="text-silver/55">{k}</dt>
-            <dd className="font-mono text-white text-right font-medium">{v}</dd>
+          <div
+            key={k}
+            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-2.5 flex flex-col justify-between"
+          >
+            <span className="text-[9.5px] font-mono tracking-wider uppercase text-silver/50 truncate">
+              {k}
+            </span>
+            <span className="font-mono text-white text-[12px] font-medium tracking-tight mt-1 truncate">
+              {v}
+            </span>
           </div>
         ))}
-      </dl>
-      <p className="text-[12px] text-silver/65 leading-relaxed bg-white/[0.02] p-3.5 rounded-2xl border border-white/[0.06]">
-        {c.note}
-      </p>
-      {relic.wiper && <DustWiper data={relic.wiper} accent={accent} onBurst={onBurst} resetKey={relic.id} />}
+      </div>
+
+      {/* Field Note */}
+      {c.note && (
+        <div className="text-[11.5px] text-silver/70 leading-relaxed bg-white/[0.02] p-3 rounded-xl border border-white/[0.06] border-l-2 border-l-silver/40">
+          {c.note}
+        </div>
+      )}
+
+      {/* Interactive Solar Wiper */}
+      {relic.wiper && (
+        <DustWiper data={relic.wiper} accent={accent} onBurst={onBurst} resetKey={relic.id} />
+      )}
     </div>
   )
 }
@@ -106,59 +140,62 @@ export default function StoryCard({ visible, relic, index, total, onPrev, onNext
       aria-live="polite"
       aria-hidden={!visible}
       initial={false}
-      animate={{ opacity: visible ? 1 : 0, x: visible ? 0 : 40 }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: visible ? 0.4 : 0 }}
+      animate={{ opacity: visible ? 1 : 0, x: visible ? 0 : 36 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: visible ? 0.2 : 0 }}
       style={{
         pointerEvents: visible ? 'auto' : 'none',
-        '--panel-glow': `${accent}25`,
+        '--panel-glow': `${accent}20`,
       }}
-      className="absolute z-20 left-3 right-3 bottom-[76px] max-h-[52vh] md:left-auto md:right-6 md:top-20 md:bottom-6 md:w-[420px] md:max-h-none glass-panel rounded-3xl flex flex-col overflow-hidden"
+      className="absolute z-20 left-3 right-3 bottom-[76px] md:left-auto md:right-6 md:top-20 md:bottom-auto md:w-[390px] h-auto max-h-[82vh] glass-panel rounded-3xl flex flex-col overflow-hidden shadow-2xl"
     >
       <AnimatePresence mode="wait">
         <motion.div
           key={relic.id}
           className="flex flex-col min-h-0 flex-1"
-          initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+          initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: -8, filter: 'blur(6px)' }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         >
-          <header className="relative px-6 pt-5 pb-3.5 shrink-0 overflow-hidden" {...swipe}>
+          {/* Compact Non-Overwhelming Header */}
+          <header className="relative px-5 pt-4 pb-3 shrink-0 overflow-hidden" {...swipe}>
             <span
               className="absolute inset-x-0 top-0 h-[2px]"
               style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
             />
-            <span
-              className="pointer-events-none absolute -right-2 top-2 select-none text-9xl font-extralight tracking-tighter opacity-[0.06] font-mono leading-none"
-              style={{ color: accent }}
-            >
-              {relic.year}
-            </span>
+
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold tracking-wider font-sans uppercase" style={{ color: accent }}>
+              <span
+                className="text-[10px] font-semibold tracking-wider font-sans uppercase px-2.5 py-0.5 rounded-full"
+                style={{ background: `${accent}16`, color: accent, border: `1px solid ${accent}33` }}
+              >
                 {relic.year} · {relic.place}
               </span>
+
               <div className="flex items-center gap-2">
-                <span className="glass-pill rounded-full px-2.5 py-0.5 font-mono text-[10px] text-silver/60">
+                <span className="font-mono text-[10px] text-silver/45">
                   {String(index + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}
                 </span>
                 <button
                   onClick={onClose}
                   aria-label="Close story panel"
-                  className="grid place-items-center w-7 h-7 rounded-full bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 text-silver/70 hover:text-white transition-all active:scale-95"
+                  className="grid place-items-center w-6 h-6 rounded-full bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 text-silver/70 hover:text-white transition-all active:scale-95"
                 >
-                  <X size={13} />
+                  <X size={12} />
                 </button>
               </div>
             </div>
-            <h2 className="mt-2.5 text-[26px] font-light tracking-tight text-white leading-tight font-sans">
-              {relic.title}
+
+            <h2 className="mt-2 text-xl font-medium tracking-tight text-white leading-tight font-sans">
+              {relic.name}
             </h2>
-            <p className="text-[12.5px] font-medium text-silver/50 mt-0.5 font-sans">{relic.name}</p>
-            <p className="hidden sm:block text-[13px] text-silver/70 mt-3 leading-relaxed font-sans">{relic.blurb}</p>
+            <p className="text-[12px] italic text-silver/65 mt-0.5 font-sans">
+              “{relic.title}”
+            </p>
           </header>
 
-          <div role="tablist" className="mx-6 p-1 rounded-2xl bg-black/40 border border-white/[0.08] flex gap-1 shrink-0 backdrop-blur-md">
+          {/* Segmented Control Tab Bar */}
+          <div role="tablist" className="mx-5 p-1 rounded-xl bg-black/40 border border-white/[0.08] flex gap-1 shrink-0 backdrop-blur-md">
             {TABS.map((t) => {
               const on = tab === t.id
               return (
@@ -170,19 +207,19 @@ export default function StoryCard({ visible, relic, index, total, onPrev, onNext
                     setTab(t.id)
                     sfx.click()
                   }}
-                  className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 text-[11.5px] font-medium rounded-xl transition-all duration-200 select-none ${
-                    on ? 'text-white' : 'text-silver/55 hover:text-silver/90'
+                  className={`relative flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 text-[11px] font-medium rounded-lg transition-all duration-200 select-none ${
+                    on ? 'text-white' : 'text-silver/50 hover:text-silver/85'
                   }`}
                 >
                   {on && (
                     <motion.div
                       layoutId="active-tab-indicator"
-                      className="absolute inset-0 rounded-xl bg-white/[0.12] border border-white/15 shadow-sm"
+                      className="absolute inset-0 rounded-lg bg-white/[0.12] border border-white/15 shadow-sm"
                       transition={{ type: 'spring', stiffness: 450, damping: 32 }}
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-1.5">
-                    <t.icon size={13} style={{ color: on ? accent : 'currentColor' }} />
+                    <t.icon size={12.5} style={{ color: on ? accent : 'currentColor' }} />
                     {t.label}
                   </span>
                 </button>
@@ -190,14 +227,15 @@ export default function StoryCard({ visible, relic, index, total, onPrev, onNext
             })}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto scroll-thin px-6 py-4">
+          {/* Scrollable Tab Content Area (only scrolls if viewport is small) */}
+          <div className="flex-1 min-h-0 overflow-y-auto scroll-thin px-5 py-3.5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={tab}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2 }}
               >
                 {tab === 'log' && <LogTab relic={relic} accent={accent} />}
                 {tab === 'science' && <ScienceTab relic={relic} accent={accent} />}
@@ -206,7 +244,8 @@ export default function StoryCard({ visible, relic, index, total, onPrev, onNext
             </AnimatePresence>
           </div>
 
-          <div className="px-6 pb-5 shrink-0">
+          {/* Clean High-Tech Telemetry Footer */}
+          <div className="px-5 pb-4 shrink-0">
             <SignalReadout body={relic.body} accent={accent} />
           </div>
         </motion.div>

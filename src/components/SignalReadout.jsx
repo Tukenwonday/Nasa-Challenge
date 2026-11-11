@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Radio } from 'lucide-react'
 import { getSignal, formatLatency } from '../lib/signal.js'
 
 /** Passive live telemetry readout: distance from Earth and one-way radio latency. */
@@ -10,27 +9,32 @@ export default function SignalReadout({ body, accent }) {
     return () => clearInterval(iv)
   }, [])
   const sig = getSignal(body, now)
+  const targetLabel = body === 'mars' ? 'MARS RELAY' : 'LUNAR RELAY'
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 flex items-center gap-3.5 text-[11px] shadow-sm backdrop-blur-md">
-      <span
-        className="grid place-items-center w-8 h-8 rounded-xl shrink-0"
-        style={{ background: `${accent}18`, color: accent, border: `1px solid ${accent}33` }}
-      >
-        <Radio size={14} className="animate-pulse" />
-      </span>
-      <div className="min-w-0 leading-tight">
-        <div className="text-[10px] font-semibold font-sans tracking-wider uppercase text-silver/50">
-          Live Earth ↔ {body === 'mars' ? 'Mars' : 'Moon'} Link
-        </div>
-        <div className="mt-1 text-silver/70 truncate text-[11.5px]">
-          <span className="font-mono text-white tabular-nums font-medium">
+    <div className="rounded-xl border border-white/[0.08] bg-black/40 px-3.5 py-2.5 flex items-center justify-between text-[11px] shadow-sm backdrop-blur-md">
+      <div className="flex items-center gap-2.5">
+        {/* Pulsing signal status beacon */}
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping bg-[#8fd6a3]" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8fd6a3]" />
+        </span>
+        <div className="leading-tight">
+          <div className="text-[9.5px] font-mono tracking-widest uppercase text-silver/50">
+            {targetLabel}
+          </div>
+          <div className="font-mono text-white text-[12px] font-medium tracking-tight mt-0.5">
             {Math.round(sig.km).toLocaleString('en-US')} km
-          </span>
-          <span className="text-silver/35 mx-1.5">·</span>
-          <span className="font-mono text-silver/85">
-            one-way {formatLatency(sig.oneWay)}
-          </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-right leading-tight border-l border-white/[0.08] pl-3">
+        <div className="text-[9.5px] font-mono tracking-widest uppercase text-silver/50">
+          ONE-WAY DELAY
+        </div>
+        <div className="font-mono text-[12px] font-medium tracking-tight mt-0.5" style={{ color: accent }}>
+          {formatLatency(sig.oneWay)}
         </div>
       </div>
     </div>
