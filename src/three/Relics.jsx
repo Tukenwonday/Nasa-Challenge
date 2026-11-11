@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
+import { useGLTF } from '@react-three/drei'
 
 /* ---------- Shared PBR materials ---------- */
 const Foil = (p) => <meshStandardMaterial color="#d6a52e" metalness={1} roughness={0.22} envMapIntensity={1.4} {...p} />
@@ -123,62 +124,37 @@ export function Surveyor() {
   )
 }
 
-/* ---------- 2. Apollo 11 Descent Stage ---------- */
+/* ---------- 2. Apollo 11 Lunar Module (3D GLTF) ---------- */
 export function Apollo11() {
-  const legs = [0, 1, 2, 3].map((k) => {
-    const ang = Math.PI / 4 + (k * Math.PI) / 2 + Math.PI / 2
-    return { c: Math.cos(ang), s: Math.sin(ang), ang }
-  })
+  const { scene } = useGLTF('/models/apollo_11_lunar_module.glb')
+  const cloned = useMemo(() => {
+    const c = scene.clone(true)
+    c.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true
+        node.receiveShadow = true
+        if (node.material) {
+          node.material.roughness = Math.min(node.material.roughness ?? 0.5, 0.65)
+          node.material.envMapIntensity = 1.2
+        }
+      }
+    })
+    return c
+  }, [scene])
+
   return (
-    <group scale={1.05}>
-      {/* octagonal gold-foil body */}
-      <mesh position={[0, 1.2, 0]} rotation={[0, Math.PI / 8, 0]}>
-        <cylinderGeometry args={[1.25, 1.25, 0.95, 8]} />
-        <Foil />
-      </mesh>
-      <mesh position={[0, 1.72, 0]} rotation={[0, Math.PI / 8, 0]}>
-        <cylinderGeometry args={[1.18, 1.25, 0.1, 8]} />
-        <Bronze />
-      </mesh>
-      {/* Torn-away attach ring left by the ascent stage */}
-      <mesh position={[0, 1.8, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.7, 0.04, 8, 32]} />
-        <Alu />
-      </mesh>
-      {/* Descent engine bell */}
-      <mesh position={[0, 0.5, 0]}>
-        <cylinderGeometry args={[0.28, 0.55, 0.8, 20, 1, true]} />
-        <meshStandardMaterial color="#25201c" metalness={0.8} roughness={0.6} side={THREE.DoubleSide} />
-      </mesh>
-      {legs.map(({ c, s }, i) => (
-        <group key={i}>
-          <Strut a={[c * 1.1, 1.45, s * 1.1]} b={[c * 2.2, 0.2, s * 2.2]} r={0.06} mat={<Foil color="#b78a28" />} />
-          <Strut a={[c * 1.15, 0.8, s * 1.15]} b={[c * 1.75, 0.8, s * 1.75]} r={0.03} />
-          <Strut a={[c * 0.5, 0.95, s * 0.5]} b={[c * 1.65, 0.75, s * 1.65]} r={0.025} />
-          <mesh position={[c * 2.25, 0.07, s * 2.25]}>
-            <cylinderGeometry args={[0.45, 0.5, 0.1, 24]} />
-            <Alu />
-          </mesh>
-        </group>
-      ))}
-      {/* ladder on the first leg + plaque */}
-      {[0, 1, 2, 3, 4].map((r) => {
-        const { c, s, ang } = legs[0]
-        const t = 0.15 + r * 0.17
-        return (
-          <mesh key={r} position={[c * (1.1 + 1.1 * t) * 1, 1.45 - 1.25 * t, s * (1.1 + 1.1 * t)]} rotation={[0, -ang, 0]}>
-            <boxGeometry args={[0.04, 0.04, 0.42]} />
-            <Alu />
-          </mesh>
-        )
-      })}
-      <mesh position={[legs[0].c * 1.28, 1.2, legs[0].s * 1.28]} rotation={[0, -legs[0].ang + Math.PI / 2, 0]}>
-        <boxGeometry args={[0.04, 0.32, 0.45]} />
-        <Alu color="#e6e8ec" roughness={0.18} />
-      </mesh>
+    <group position={[0, 0, 0]}>
+      {/* Model dimensions: 154 x 134 x 154, bottom at Y=-134.07, center X=-2, Z=0 */}
+      <primitive
+        object={cloned}
+        scale={0.022}
+        position={[2 * 0.022, 134.074 * 0.022, 0]}
+        rotation={[0, -Math.PI / 4, 0]}
+      />
     </group>
   )
 }
+useGLTF.preload('/models/apollo_11_lunar_module.glb')
 
 /* ---------- 3. Apollo 15 Lunar Roving Vehicle ---------- */
 export function LunarRover() {
