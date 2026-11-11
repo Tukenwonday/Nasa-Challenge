@@ -1,4 +1,4 @@
-import { Component, useCallback, useEffect, useRef, useState } from 'react'
+import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Volume2, VolumeX, ZoomOut, Monitor } from 'lucide-react'
 import Scene from './three/Scene.jsx'
@@ -7,6 +7,7 @@ import StoryCard from './components/StoryCard.jsx'
 import { HoverCard, Teaser } from './components/Popups.jsx'
 import { RELICS } from './data/relics.js'
 import * as audio from './lib/audio.js'
+import { useRemoteSync } from './lib/remoteSync.js'
 
 class ErrorBoundary extends Component {
   state = { failed: false }
@@ -123,6 +124,8 @@ export default function App() {
   if (hover !== null) lastHover.current = hover
   const lockTimer = useRef(null)
   const indexRef = useRef(-1)
+  const controlsRef = useRef(null)
+  const resumeAutoRotateTimer = useRef(null)
   const overview = index < 0
   const relic = RELICS[Math.max(index, 0)]
 
@@ -187,15 +190,110 @@ export default function App() {
     setEntered(true)
   }, [])
 
-  const toggleMute = () => {
-    const m = !muted
-    setMuted(m)
-    audio.setMuted(m)
-    if (!m) {
-      audio.init()
-      setTimeout(() => audio.sfx.click(), 80)
+  const toggleMute = useCallback(() => {
+    setMuted((prev) => {
+      const next = !prev
+      audio.setMuted(next)
+      if (!next) {
+        audio.init()
+        setTimeout(() => audio.sfx.click(), 80)
+      }
+      return next
+    })
+  }, [])
+
+  // Remote controller event handlers
+  const handleRemoteNavigate = useCallback(
+    (payload) => {
+      const { action, targetIndex } = payload || {}
+      if (action === 'NEXT') go(indexRef.current + 1)
+      else if (action === 'PREV') go(indexRef.current - 1)
+      else if (action === 'OVERVIEW') go(-1)
+      else if (action === 'GO_TO_INDEX' && typeof targetIndex === 'number') go(targetIndex)
+    },
+    [go],
+  )
+
+  const handleRemoteRotate = useCallback((payload) => {
+    const c = controlsRef.current
+    if (!c) return
+    const { dx, dy, phase } = payload || {}
+    const SENSITIVITY = 1.6
+
+    c.userData = c.userData || {}
+    c.userData.manualRotating = true
+    c.autoRotate = false
+
+    clearTimeout(resumeAutoRotateTimer.current)
+    if (phase === 'end') {
+      resumeAutoRotateTimer.current = setTimeout(() => {
+        if (controlsRef.current) {
+          controlsRef.current.userData.manualRotating = false
+          if (indexRef.current >= 0) {
+            controlsRef.current.autoRotate = true
+          }
+        }
+      }, 2500)
     }
-  }
+
+    if (typeof dx === 'number' && typeof c.rotateLeft === 'function') {
+      c.rotateLeft(dx * SENSITIVITY)
+    }
+    if (typeof dy === 'number' && typeof c.rotateUp === 'function') {
+      c.rotateUp(dy * SENSITIVITY)
+    }
+    if (typeof c.update === 'function') {
+      c.update()
+    }
+  }, [])
+
+  const handleRemoteAction = useCallback(
+    (action) => {
+      audio.init()
+      if (action === 'WIPE_DUST') {
+        setBurstKey((k) => k + 1)
+        audio.sfx.dust()
+      } else if (action === 'PING_SIGNAL') {
+        audio.sfx.lock()
+      } else if (action === 'TOGGLE_AUDIO') {
+        toggleMute()
+      } else if (action === 'TOGGLE_DOSSIER') {
+        if (indexRef.current >= 0) {
+          setOpen((o) => !o)
+          audio.sfx.click()
+        }
+      }
+    },
+    [toggleMute],
+  )
+
+  const syncPayload = useMemo(
+    () => ({
+      index,
+      total: RELICS.length,
+      overview: index < 0,
+      relic: relic
+        ? {
+            id: relic.id,
+            name: relic.name,
+            year: relic.year,
+            body: relic.body,
+            title: relic.title,
+            place: relic.place,
+          }
+        : null,
+      panelOpen: open,
+      muted,
+    }),
+    [index, relic, open, muted],
+  )
+
+  useRemoteSync({
+    onNavigate: handleRemoteNavigate,
+    onRotate: handleRemoteRotate,
+    onAction: handleRemoteAction,
+    state: syncPayload,
+  })
 
   // If on mobile device or screen, block with dedicated message
   if (isMobile) {
@@ -214,6 +312,7 @@ export default function App() {
             onHover={setHover}
             hoverRef={hoverRef}
             cardRef={cardRef}
+            controlsRef={controlsRef}
           />
         </div>
       </ErrorBoundary>

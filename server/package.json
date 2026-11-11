@@ -1,0 +1,14 @@
+{
+  "name": "nasa-mission-relay",
+  "version": "1.0.0",
+  "description": "High-performance direct broadcast WebSocket relay for NASA space relics companion remote",
+  "type": "module",
+  "main": "relay-server.js",
+  "scripts": {
+    "start": "node relay-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
+

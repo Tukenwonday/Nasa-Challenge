@@ -193,7 +193,9 @@ function Rig({ overview, panel, controls }) {
     const d = camera.position.length()
     c.minDistance = 8
     c.enableZoom = !overview
-    c.autoRotate = !overview
+    if (!c.userData?.manualRotating) {
+      c.autoRotate = !overview
+    }
     if (overview) {
       // ease the view back to a frontal azimuth so the six relics line up cleanly
       camera.position.applyAxisAngle(Y_AXIS, -c.getAzimuthalAngle() * (1 - Math.exp(-dt * 2)))
@@ -252,10 +254,11 @@ function Lights({ body }) {
   )
 }
 
-export default function Scene({ index, burstKey, panel, onRelicClick, onHover, hoverRef, cardRef }) {
+export default function Scene({ index, burstKey, panel, onRelicClick, onHover, hoverRef, cardRef, controlsRef }) {
   const overview = index < 0
   const relic = RELICS[Math.max(index, 0)]
-  const controls = useRef()
+  const internalControls = useRef()
+  const controls = controlsRef || internalControls
   return (
     <Canvas
       shadows
