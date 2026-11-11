@@ -75,7 +75,7 @@ export function HoverCard({ relic, visible, cardRef }) {
   )
 }
 
-/** Slim teaser shown when zoomed in and the full story panel is closed. */
+/** Minimalist teaser shown when zoomed in and the full story panel is closed. */
 export function Teaser({ relic, visible, onOpen }) {
   if (!relic) return null
   const accent = ACCENTS[relic.body]
@@ -85,25 +85,51 @@ export function Teaser({ relic, visible, onOpen }) {
       {visible && (
         <motion.div
           key={relic.id}
-          initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.25 }}
-          className="pointer-events-none absolute z-20 left-0 right-0 bottom-20 md:bottom-24 flex justify-center px-4"
+          initial={{ opacity: 0, x: -24, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, x: -16, filter: 'blur(6px)' }}
+          transition={{ duration: 0.5, ease: EASE, delay: 0.15 }}
+          className="pointer-events-none absolute z-20 top-4 left-4 md:top-6 md:left-6 max-w-[280px] sm:max-w-xs"
         >
           <button
             onClick={onOpen}
-            className="pointer-events-auto group glass relative overflow-hidden rounded-2xl px-6 py-4 text-center max-w-md w-full shadow-2xl transition hover:bg-white/[0.07]"
+            className="pointer-events-auto group glass relative overflow-hidden rounded-2xl p-4 text-left w-full shadow-2xl transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20"
           >
-            <span className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
-            <span className="hud-label block" style={{ color: accent }}>
-              {relic.year} · {relic.place}
-            </span>
-            <span className="mt-1.5 block text-2xl md:text-3xl font-extralight tracking-tight text-white">{relic.title}</span>
-            <span className="mt-1 block text-[12px] text-silver/55">{relic.name}</span>
-            <span className="mt-3 inline-flex items-center gap-1.5 text-[11px] text-silver/60 group-hover:text-white transition">
-              <BookOpen size={12} style={{ color: accent }} /> Click to read historical dossier
-            </span>
+            <span
+              className="absolute inset-x-0 top-0 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+            />
+
+            {/* Year & Celestial Destination */}
+            <div className="flex items-center justify-between">
+              <span
+                className="hud-label text-[10px] tracking-widest font-semibold"
+                style={{ color: accent }}
+              >
+                {relic.year} · {relic.body === 'mars' ? 'MARS' : 'THE MOON'}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
+            </div>
+
+            {/* Machine Name */}
+            <h2 className="mt-1.5 text-xl font-light tracking-tight text-white group-hover:text-white transition leading-snug">
+              {relic.name}
+            </h2>
+
+            {/* Fun title / Nickname */}
+            <p className="mt-0.5 text-[12px] italic text-silver/70">
+              “{relic.title}”
+            </p>
+
+            {/* Minimalist interactive cue */}
+            <div className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-silver/60 group-hover:text-white transition">
+              <span>Explore Mission</span>
+              <ArrowUpRight
+                size={13}
+                style={{ color: accent }}
+                className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+              />
+            </div>
           </button>
         </motion.div>
       )}
