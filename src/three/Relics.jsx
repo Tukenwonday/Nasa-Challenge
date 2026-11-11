@@ -127,7 +127,7 @@ export function Surveyor() {
 /* ---------- 2. Apollo 11 Lunar Module (3D GLTF) ---------- */
 export function Apollo11() {
   const { scene } = useGLTF('/models/apollo_11_lunar_module.glb')
-  const cloned = useMemo(() => {
+  const { cloned, offset, scale } = useMemo(() => {
     const c = scene.clone(true)
     c.traverse((node) => {
       if (node.isMesh) {
@@ -139,18 +139,29 @@ export function Apollo11() {
         }
       }
     })
-    return c
+
+    // Compute precise bounding box to center horizontally & place landing footpads flush on pedestal
+    const box = new THREE.Box3().setFromObject(c)
+    const center = new THREE.Vector3()
+    const size = new THREE.Vector3()
+    box.getCenter(center)
+    box.getSize(size)
+
+    // Target base size ~3.4 units to fit elegantly on the 6.4 diameter pedestal
+    const targetWidth = 3.4
+    const s = targetWidth / Math.max(size.x, size.z)
+
+    // Offsets to center X and Z at origin, and align lowest point (min.y) to 0
+    const ox = -center.x * s
+    const oy = -box.min.y * s
+    const oz = -center.z * s
+
+    return { cloned: c, offset: [ox, oy, oz], scale: s }
   }, [scene])
 
   return (
-    <group position={[0, 0, 0]}>
-      {/* Model dimensions: 154 x 134 x 154, bottom at Y=-134.07, center X=-2, Z=0 */}
-      <primitive
-        object={cloned}
-        scale={0.022}
-        position={[2 * 0.022, 134.074 * 0.022, 0]}
-        rotation={[0, -Math.PI / 4, 0]}
-      />
+    <group position={[0, 0.02, 0]} rotation={[0, -Math.PI / 4, 0]}>
+      <primitive object={cloned} scale={scale} position={offset} />
     </group>
   )
 }

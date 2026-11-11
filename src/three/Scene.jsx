@@ -84,9 +84,7 @@ function Relic({ relic, index, active, worldRef, overview, onRelicClick, onHover
     <group ref={group} position={[index * SPACING, 0, 0]}>
       <Pedestal body={relic.body} />
       <group ref={lift}>
-        <Float speed={1.1} rotationIntensity={0.06} floatIntensity={0.35} floatingRange={[0, 0.14]}>
-          <Model />
-        </Float>
+        <Model />
       </group>
       <Label relic={relic} overview={overview} hidden={hot} />
       {/* invisible hit volume for hover / click */}
