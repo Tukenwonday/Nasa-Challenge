@@ -75,7 +75,7 @@ export function HoverCard({ relic, visible, cardRef }) {
   )
 }
 
-/** Minimalist teaser shown when zoomed in and the full story panel is closed. */
+/** Slim docked mission capsule floating right above the timeline dots (Idea 2). */
 export function Teaser({ relic, visible, onOpen }) {
   if (!relic) return null
   const accent = ACCENTS[relic.body]
@@ -85,51 +85,54 @@ export function Teaser({ relic, visible, onOpen }) {
       {visible && (
         <motion.div
           key={relic.id}
-          initial={{ opacity: 0, x: -24, filter: 'blur(8px)' }}
-          animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, x: -16, filter: 'blur(6px)' }}
-          transition={{ duration: 0.5, ease: EASE, delay: 0.15 }}
-          className="pointer-events-none absolute z-20 top-4 left-4 md:top-6 md:left-6 max-w-[280px] sm:max-w-xs"
+          initial={{ opacity: 0, y: 14, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.96 }}
+          transition={{ duration: 0.4, ease: EASE }}
+          className="pointer-events-none absolute z-20 bottom-[68px] md:bottom-[78px] left-0 right-0 flex justify-center px-4"
         >
           <button
             onClick={onOpen}
-            className="pointer-events-auto group glass relative overflow-hidden rounded-2xl p-4 text-left w-full shadow-2xl transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20"
+            aria-label={`Explore mission details for ${relic.name}`}
+            className="pointer-events-auto group glass rounded-full pl-2 pr-3.5 py-1.5 flex items-center gap-2.5 max-w-full sm:max-w-xl shadow-2xl transition hover:bg-white/[0.09] hover:border-white/20 select-none"
           >
+            {/* Year & Planet Tag */}
             <span
-              className="absolute inset-x-0 top-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
-            />
+              className="hud-label rounded-full px-2.5 py-0.5 text-[9.5px] tracking-wider font-semibold flex items-center gap-1.5 shrink-0"
+              style={{
+                background: `${accent}18`,
+                color: accent,
+                border: `1px solid ${accent}40`,
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
+              {relic.year} · {relic.body === 'mars' ? 'MARS' : 'MOON'}
+            </span>
 
-            {/* Year & Celestial Destination */}
-            <div className="flex items-center justify-between">
-              <span
-                className="hud-label text-[10px] tracking-widest font-semibold"
-                style={{ color: accent }}
-              >
-                {relic.year} · {relic.body === 'mars' ? 'MARS' : 'THE MOON'}
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
-            </div>
-
-            {/* Machine Name */}
-            <h2 className="mt-1.5 text-xl font-light tracking-tight text-white group-hover:text-white transition leading-snug">
+            {/* Relic Name */}
+            <span className="text-[13px] font-medium text-white tracking-tight truncate">
               {relic.name}
-            </h2>
+            </span>
+
+            {/* Separator dot */}
+            <span className="hidden sm:inline text-silver/30 text-xs">·</span>
 
             {/* Fun title / Nickname */}
-            <p className="mt-0.5 text-[12px] italic text-silver/70">
+            <span className="hidden sm:inline text-[12px] italic text-silver/65 truncate max-w-[220px]">
               “{relic.title}”
-            </p>
+            </span>
 
-            {/* Minimalist interactive cue */}
-            <div className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-silver/60 group-hover:text-white transition">
-              <span>Explore Mission</span>
+            {/* Explore button cue */}
+            <span
+              className="hud-label text-[10px] tracking-wider shrink-0 flex items-center gap-1 ml-auto font-medium transition group-hover:text-white"
+              style={{ color: accent }}
+            >
+              Explore
               <ArrowUpRight
-                size={13}
-                style={{ color: accent }}
+                size={12}
                 className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
               />
-            </div>
+            </span>
           </button>
         </motion.div>
       )}
