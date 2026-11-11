@@ -12,6 +12,22 @@ import {
   Activity,
   Orbit,
 } from 'lucide-react'
+import rawRelics from './relics.json'
+
+const ICON_MAP = {
+  camera: Camera,
+  rocket: Rocket,
+  mountain: Mountain,
+  footprints: Footprints,
+  gem: Gem,
+  layers: Layers,
+  route: Route,
+  gauge: Gauge,
+  droplets: Droplets,
+  clock: Clock,
+  activity: Activity,
+  orbit: Orbit,
+}
 
 export const COLORS = {
   void: '#08080A',
@@ -20,222 +36,26 @@ export const COLORS = {
 }
 
 /**
- * The six milestones. `model` keys map to procedural geometry in /three/Relics.jsx.
- * Telemetry values marked "(est.)" are illustrative estimates for storytelling.
+ * The six milestones. Content is loaded directly from /src/data/relics.json
+ * so anyone can edit titles, blurbs, quotes, and mission logs in plain JSON.
  */
-export const RELICS = [
-  {
-    id: 'surveyor-1',
-    model: 'surveyor',
-    year: 1966,
-    name: 'Surveyor 1',
-    short: 'Surveyor 1',
-    body: 'moon',
-    place: 'The Moon · Ocean of Storms',
-    title: 'The First Soft Touch',
-    blurb:
-      'Before anyone dared to land, Surveyor 1 asked the Moon a simple question: will the ground hold? It did — proving lunar soil was firm and paving the way for Apollo.',
-    log: [
-      'They told me the Moon might swallow me whole, like quicksand made of dust.',
-      'But my three footpads touched down and the ground held. Firm. Quiet. Ready.',
-      'I sent home thousands of pictures so humans could see where to step next. Then the long lunar night fell — and I kept waiting.',
-    ],
-    sign: '— Surveyor 1, signing off from the Ocean of Storms, 1966',
-    stats: [
-      { icon: Mountain, value: 'Firm Ground', label: 'Soil strong enough to land on' },
-      { icon: Camera, value: '11,237', label: 'Images beamed to Earth' },
-      { icon: Rocket, value: '1st', label: 'U.S. soft landing on another world' },
-    ],
-    condition: {
-      status: 'Preserved in Vacuum',
-      tone: 'ok',
-      rows: [
-        ['Last contact', 'Jan 1967'],
-        ['Temperature swing', '−170 → +120 °C'],
-        ['Surface dust layer', '~1.1 mm (est.)'],
-      ],
-      note: 'No wind, no rain, no rust. Only slow micrometeorite sandblasting and sunlight remain.',
-    },
-  },
-  {
-    id: 'apollo-11',
-    model: 'apollo11',
-    year: 1969,
-    name: 'Apollo 11 Descent Stage',
-    short: 'Apollo 11',
-    body: 'moon',
-    place: 'The Moon · Tranquility Base',
-    title: 'Left on the Porch',
-    blurb:
-      'The gold-foil base of the Eagle. When two astronauts blasted home, the platform that carried them down stayed behind — untouched in a total vacuum.',
-    log: [
-      'Tranquility Base here. The Eagle has landed — and now, it is time to go home.',
-      'The ascent engine fires. Our legs, our ladder and our plaque stay behind on the porch.',
-      '“We came in peace for all mankind.” Please keep the light on for us.',
-    ],
-    sign: '— Eagle crew, lifting off, July 21, 1969',
-    stats: [
-      { icon: Footprints, value: '21.6 h', label: 'Time spent on the surface' },
-      { icon: Gem, value: '21.5 kg', label: 'Lunar samples returned' },
-      { icon: Layers, value: '2', label: 'Experiments left running: seismic & laser mirror' },
-    ],
-    condition: {
-      status: 'Condition: Preserved in Vacuum',
-      tone: 'ok',
-      rows: [
-        ['Plaque', 'Intact'],
-        ['Gold foil', 'UV-aged, still shining (est.)'],
-        ['Surface dust layer', '~2.4 mm (est.)'],
-      ],
-      note: 'Without air to erode anything, the astronauts’ footprints may last millions of years.',
-    },
-  },
-  {
-    id: 'apollo-15-lrv',
-    model: 'rover',
-    year: 1971,
-    name: 'Apollo 15 Lunar Rover',
-    short: 'Apollo 15 LRV',
-    body: 'moon',
-    place: 'The Moon · Hadley Rille',
-    title: 'The First Car Off Earth',
-    blurb:
-      'Folded like origami and driven across the Moon on wire-mesh tires, the rover carried astronauts miles beyond walking range. It is still parked at Hadley Rille.',
-    log: [
-      'Seat belts on. Battery full. Wheels woven from wire, ready to roll.',
-      'We rolled beside a canyon older than any mountain on Earth, and found a rock that remembers the Moon’s birth.',
-      'Now I’m parked facing the rille, keys left in. Whenever someone comes back, I’ll be right here.',
-    ],
-    sign: '— Rover, parked for good, August 1971',
-    stats: [
-      { icon: Route, value: '27.9 km', label: 'Driven over three moon-walks' },
-      { icon: Gem, value: '77 kg', label: 'Samples incl. the “Genesis Rock”' },
-      { icon: Mountain, value: 'Ancient Crust', label: 'Sampled beside Hadley Rille' },
-    ],
-    condition: {
-      status: 'Parked · Dormant',
-      tone: 'ok',
-      rows: [
-        ['Location', 'Hadley–Apennine'],
-        ['Wire-mesh tires', 'Intact (est.)'],
-        ['Surface dust layer', '~3.0 mm (est.)'],
-      ],
-      note: 'Its batteries died ages ago, but the frame and tires are likely just as they were left.',
-    },
-  },
-  {
-    id: 'sojourner',
-    model: 'sojourner',
-    year: 1997,
-    name: 'Sojourner / Pathfinder',
-    short: 'Sojourner',
-    body: 'mars',
-    place: 'Mars · Ares Vallis',
-    title: 'The Microwave-Sized Pioneer',
-    blurb:
-      'A 23-pound rover the size of a microwave oven that proved wheels work on Mars — and started a whole lineage of robotic explorers.',
-    log: [
-      'Hello, Mars! I’m small, but my six wheels are brave.',
-      'I sniffed rocks with my chemistry sensor and never wandered far from my lander — it was my lifeline home.',
-      'Then our last message came. I stayed beside Pathfinder on the red plain, a tiny explorer who showed the way for giants.',
-    ],
-    sign: '— Sojourner, final transmission, September 1997',
-    stats: [
-      { icon: Gauge, value: '16', label: 'Rock & soil chemistry readings' },
-      { icon: Route, value: '~100 m', label: 'Total roaming distance' },
-      { icon: Droplets, value: 'Past Floods', label: 'Rounded pebbles from ancient floodwaters' },
-    ],
-    wiper: { dustyW: 7.2, cleanW: 16, thresholdW: 9.5, dustyV: 11.8, cleanV: 14.2, requiredV: 12.5, cleanFrac: 0.8 },
-    condition: {
-      status: 'Silent Since 1997',
-      tone: 'silent',
-      rows: [
-        ['Last contact', 'Sep 27, 1997'],
-        ['Mass', '10.6 kg (23 lb)'],
-        ['Surface dust layer', '~2.8 mm (est.)'],
-      ],
-      note: 'Resting beside its lander in Ares Vallis, slowly turning the colour of the Martian plain.',
-    },
-  },
-  {
-    id: 'opportunity',
-    model: 'opportunity',
-    year: 2004,
-    name: 'Opportunity Rover (Oppy)',
-    short: 'Opportunity',
-    body: 'mars',
-    place: 'Mars · Perseverance Valley',
-    title: 'The 90-Day Miracle',
-    blurb:
-      'Built for 90 days, Oppy ran for 15 years and 28 miles — until the global dust storm of 2018 blotted out the sun.',
-    log: [
-      'The sky is turning dark, and my battery is running low.',
-      'I have rolled farther than anyone thought possible, and I found proof that water once flowed here.',
-      'My solar panels can’t see the Sun anymore. It’s okay — it was a wonderful drive. Thank you for every single day.',
-    ],
-    sign: '— Oppy, last signal (poetic paraphrase), June 10, 2018',
-    stats: [
-      { icon: Droplets, value: 'Ancient Water', label: 'Detected: hematite “blueberries”' },
-      { icon: Route, value: '45.16 km', label: 'Driven (28 miles)' },
-      { icon: Clock, value: '5,111', label: 'Sols (Mars days) vs. 90 planned' },
-    ],
-    wiper: { dustyW: 18, cleanW: 140, thresholdW: 60, dustyV: 21.4, cleanV: 29.5, requiredV: 24, cleanFrac: 0.75 },
-    condition: {
-      status: 'Mission Complete · Silent',
-      tone: 'silent',
-      rows: [
-        ['Last signal', 'Jun 10, 2018'],
-        ['Mission length', '14 yr 8 mo'],
-        ['Surface dust layer', '~4.5 mm (est.)'],
-      ],
-      note: 'Declared complete in February 2019 after over a thousand recovery commands went unanswered.',
-    },
-  },
-  {
-    id: 'insight',
-    model: 'insight',
-    year: 2018,
-    name: 'InSight Lander',
-    short: 'InSight',
-    body: 'mars',
-    place: 'Mars · Elysium Planitia',
-    title: 'The Martian Heartbeat',
-    blurb:
-      'InSight put a stethoscope to Mars. It heard over 1,300 marsquakes until its solar arrays were choked by red dust.',
-    log: [
-      'I listened to Mars breathe — thump, rumble, tremor. A whole planet, alive with echoes.',
-      'Now the dust has settled on my wings and my power is nearly gone. I’m okay. I have heard what I came here to hear.',
-      'Don’t worry about me. Keep listening to the worlds beyond.',
-    ],
-    sign: '— InSight, mission end, December 21, 2022',
-    stats: [
-      { icon: Activity, value: '1,300+', label: 'Marsquakes detected' },
-      { icon: Orbit, value: '~1,830 km', label: 'Radius of Mars’ liquid core' },
-      { icon: Mountain, value: 'M 5.0', label: 'Largest quake, May 2022' },
-    ],
-    wiper: { dustyW: 58, cleanW: 620, thresholdW: 150, dustyV: 22.1, cleanV: 31, requiredV: 28, cleanFrac: 0.7 },
-    condition: {
-      status: 'Retired · Dust-Choked',
-      tone: 'silent',
-      rows: [
-        ['Mission end', 'Dec 21, 2022'],
-        ['Solar arrays', 'Heavily dust-coated'],
-        ['Surface dust layer', '~5.2 mm (est.)'],
-      ],
-      note: 'It tipped its arrays to shed dust, but the Martian wind never swept them fully clean.',
-    },
-  },
-]
+export const RELICS = rawRelics.map((r) => ({
+  ...r,
+  stats: (r.stats || []).map((s) => ({
+    ...s,
+    icon: (typeof s.icon === 'string' && ICON_MAP[s.icon.toLowerCase()]) || Activity,
+  })),
+}))
 
-export const YEAR_MIN = RELICS[0].year
-export const YEAR_MAX = RELICS[RELICS.length - 1].year
+export const YEAR_MIN = RELICS[0]?.year || 1966
+export const YEAR_MAX = RELICS[RELICS.length - 1]?.year || 2021
 
 /** Rail position (0..1): blend of even spacing and true chronology so early pips don't collide. */
 export function railPos(i) {
+  if (RELICS.length <= 1) return 0
   const even = i / (RELICS.length - 1)
-  const chrono = (RELICS[i].year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)
+  const chrono = (RELICS[i].year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN || 1)
   return 0.5 * even + 0.5 * chrono
 }
 
 export const ACCENTS = { moon: '#C4C9D1', mars: '#C65D3B' }
-
