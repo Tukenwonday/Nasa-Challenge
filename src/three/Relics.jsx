@@ -124,9 +124,9 @@ export function Surveyor() {
   )
 }
 
-/* ---------- 2. Apollo 11 Lunar Module (3D GLTF) ---------- */
-export function Apollo11() {
-  const { scene } = useGLTF('/models/apollo_11_lunar_module.glb')
+/* ---------- Shared GLTF loader/normalizer ---------- */
+function GltfRelic({ url, targetWidth = 3.4, position = [0, 0.02, 0], rotation = [0, 0, 0] }) {
+  const { scene } = useGLTF(url)
   const { cloned, offset, scale } = useMemo(() => {
     const c = scene.clone(true)
     c.traverse((node) => {
@@ -140,29 +140,37 @@ export function Apollo11() {
       }
     })
 
-    // Compute precise bounding box to center horizontally & place landing footpads flush on pedestal
+    // Compute precise bounding box to center horizontally & place lowest point flush on pedestal
     const box = new THREE.Box3().setFromObject(c)
     const center = new THREE.Vector3()
     const size = new THREE.Vector3()
     box.getCenter(center)
     box.getSize(size)
 
-    // Target base size ~3.4 units to fit elegantly on the 6.4 diameter pedestal
-    const targetWidth = 3.4
-    const s = targetWidth / Math.max(size.x, size.z)
-
-    // Offsets to center X and Z at origin, and align lowest point (min.y) to 0
+    const s = targetWidth / (Math.max(size.x, size.z) || 1)
     const ox = -center.x * s
     const oy = -box.min.y * s
     const oz = -center.z * s
 
     return { cloned: c, offset: [ox, oy, oz], scale: s }
-  }, [scene])
+  }, [scene, targetWidth])
 
   return (
-    <group position={[0, 0.02, 0]} rotation={[0, -Math.PI / 4, 0]}>
+    <group position={position} rotation={rotation}>
       <primitive object={cloned} scale={scale} position={offset} />
     </group>
+  )
+}
+
+/* ---------- 2. Apollo 11 Lunar Module (3D GLTF) ---------- */
+export function Apollo11() {
+  return (
+    <GltfRelic
+      url="/models/apollo_11_lunar_module.glb"
+      targetWidth={3.4}
+      position={[0, 0.02, 0]}
+      rotation={[0, -Math.PI / 4, 0]}
+    />
   )
 }
 useGLTF.preload('/models/apollo_11_lunar_module.glb')
@@ -348,69 +356,17 @@ export function Opportunity() {
   )
 }
 
-/* ---------- 6. InSight ---------- */
+/* ---------- 6. InSight (3D GLTF) ---------- */
 export function InSight() {
-  const feet = [0, 1, 2].map((k) => {
-    const ang = (k / 3) * Math.PI * 2 + Math.PI / 6
-    return { c: Math.cos(ang), s: Math.sin(ang) }
-  })
   return (
-    <group scale={1.15}>
-      {feet.map(({ c, s }, i) => (
-        <group key={i}>
-          <Strut a={[c * 0.7, 1.05, s * 0.7]} b={[c * 1.9, 0.12, s * 1.9]} r={0.05} />
-          <mesh position={[c * 1.9, 0.05, s * 1.9]}>
-            <cylinderGeometry args={[0.28, 0.32, 0.1, 18]} />
-            <Alu />
-          </mesh>
-        </group>
-      ))}
-      {/* hexagonal deck */}
-      <mesh position={[0, 1.15, 0]}>
-        <cylinderGeometry args={[1.0, 1.0, 0.2, 6]} />
-        <Paint color="#bdbfc4" />
-      </mesh>
-      <mesh position={[0, 1.4, 0]}>
-        <cylinderGeometry args={[0.7, 0.8, 0.3, 6]} />
-        <Foil color="#c9ccd3" />
-      </mesh>
-      {/* twin circular solar arrays, dusted */}
-      {[-1, 1].map((s) => (
-        <group key={s} position={[s * 2.05, 1.6, 0]} rotation={[0, 0, s * -0.25 + 0]}>
-          <mesh>
-            <cylinderGeometry args={[1.35, 1.35, 0.035, 56]} />
-            <DustPanel color="#4a3a44" />
-          </mesh>
-          <mesh position={[0, 0.02, 0]}>
-            <cylinderGeometry args={[1.3, 1.3, 0.004, 24, 4]} />
-            <meshStandardMaterial color="#9a7a86" wireframe />
-          </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[1.35, 0.025, 8, 64]} />
-            <Alu />
-          </mesh>
-          <Strut a={[0, 0, 0]} b={[-s * 1.1, -0.15, 0]} r={0.03} />
-        </group>
-      ))}
-      {/* SEIS dome + wind shield on the ground */}
-      <mesh position={[0.25, 0.04, 2.1]}>
-        <sphereGeometry args={[0.55, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#d0d3d9" metalness={0.95} roughness={0.2} />
-      </mesh>
-      <mesh position={[-0.9, 0.04, 1.8]}>
-        <cylinderGeometry args={[0.2, 0.26, 0.15, 14]} />
-        <Dark />
-      </mesh>
-      <Strut a={[0.1, 1.2, 0.8]} b={[0.25, 0.7, 1.6]} r={0.035} />
-      {/* antenna */}
-      <Strut a={[-0.4, 1.5, -0.3]} b={[-0.4, 2.3, -0.3]} r={0.02} />
-      <mesh position={[0.4, 1.6, -0.5]} rotation={[0.3, 0, 0]}>
-        <boxGeometry args={[0.4, 0.04, 0.3]} />
-        <Alu />
-      </mesh>
-    </group>
+    <GltfRelic
+      url="/models/insight_lander.glb"
+      targetWidth={6.8}
+      position={[0, 0.02, 0]}
+    />
   )
 }
+useGLTF.preload('/models/insight_lander.glb')
 
 export const MODELS = {
   surveyor: Surveyor,
